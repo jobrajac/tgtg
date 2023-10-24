@@ -107,6 +107,7 @@ class Scanner:
                    for item_id in self.state.keys()
                    if self.state.get(item_id) is not None}
         log.debug("new State: %s", amounts)
+        
         self.reservations.make_orders(
             self.state,
             self.notifiers.send_reservation)
@@ -196,6 +197,10 @@ class Scanner:
             self.notifiers.send(self._get_test_item())
         # start scanner
         log.info("Scanner started ...")
+
+        # TEMP
+        self.reservations.temp_test()
+        return
         running = True
         if self.cron != Cron("* * * * *"):
             log.info("Active on schedule: %s",
