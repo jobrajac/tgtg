@@ -29,6 +29,8 @@ INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
 CREATE_ORDER_ENDPOINT = "order/v7/create/"
 ABORT_ORDER_ENDPOINT = "order/v7/{}/abort"
 ORDER_STATUS_ENDPOINT = "order/v7/{}/status"
+ORDER_PAYMENT_INIT_ENDPOINT = "order/v7/{}/pay"
+ORDER_POLL_PAYMENT_ENDPOINT = "payment/v3/{}"
 USER_AGENTS = [
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 9; Nexus 5 Build/M4B30Z)",
     "TGTG/{} Dalvik/2.1.0 (Linux; U; Android 10; SM-G935F Build/NRD90M)",
@@ -405,3 +407,27 @@ class TgtgClient:
             json={"cancel_reason_id": 1})
         if response.json().get("state") != "SUCCESS":
             raise TgtgAPIError(response.status_code, response.content)
+
+    def init_payment(self, order_id: str) -> dict:
+        self.login()
+        response = self._post(ORDER_PAYMENT_INIT_ENDPOINT.format(order_id),
+            json={"authorization": 
+                {
+                    "authorization_payload": 
+                        {"save_payment_method": False, 
+                        "payment_type": "VIPPS",
+                        "type": "adyenAuthorizationPayload", 
+                        "payload": "{\"name\":\"Vipps\",\"type\":\"vipps\"}"
+                        }, 
+                    "payment_provider": "ADYEN",
+                    "return_url": "adyencheckout://com.app.tgtg.itemview"
+                }
+            })
+        if response.json().get("state") != "AUTHORIZATION_INITIATED" or not response.json().get("payment_id"):
+            raise TgtgAPIError(response.status_code, response.content)
+        return response.json()
+    
+    def poll_payment(self, payment_id: str) -> dict:
+        self.login()
+        response = self._post(ORDER_POLL_PAYMENT_ENDPOINT.format(payment_id))
+        return response.json()

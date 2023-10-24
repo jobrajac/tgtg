@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+import time
 from typing import Callable, Dict, List
 
 from tgtg_scanner.models.item import Item
@@ -21,6 +22,12 @@ class Reservation():
     item_id: str
     amount: int
     display_name: str
+
+@dataclass
+class Payment():
+    order_id: str
+    payload: str
+    state: str
 
 
 class Reservations():
@@ -88,3 +95,32 @@ class Reservations():
                           reservation.amount,
                           reservation.display_name)
             self.active_orders[order_id] = order
+
+            # TODO remove
+            self.pay_order(order_id)
+
+    def pay_order(self, order_id: str) -> None:
+        order_status = self.client.get_order_status(order_id)
+        if order_status.get("state") != "RESERVED":
+            log.info("Order with id %s is no lenger reserved.", order_id)
+            return
+
+        payment_init = self.client.init_payment(order_id)
+        self._poll_payment(payment_init.get("payment_id"))
+
+    def _poll_payment(self, payment_id: str):
+        payment_status = self.client.poll_payment(payment_id)
+        if payment_status.get("state") == "ADDITIONAL_AUTHORIZATION_REQUIRED":
+            payload = payment_status.get("payload")
+            log.info(payload)
+
+        while payment_status.get("state") == "ADDITIONAL_AUTHORIZATION_REQUIRED":
+            log.info("Waiting for external authorization.")
+            time.sleep(1)
+            payment_status = self.client.poll_payment(payment_id)
+
+        raise Exception(payment_status.status_code, payment_status.content)
+        
+    def temp_test(self):
+        reservation = Reservation(15159, 1, "Test item")
+        self._create_order(reservation=reservation)
