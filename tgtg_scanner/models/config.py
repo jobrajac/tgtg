@@ -129,6 +129,11 @@ DEFAULT_CONFIG = {
                 '*Pickup*: ${{pickupdate}}',
         'image': None
     },
+    'slack': {
+        'enabled': False,
+        'app_token': '',
+        'bot_token': '',
+    },
     'script': {
         'enabled': False,
         'command': '',
@@ -164,6 +169,7 @@ class Config():
     ntfy: dict
     webhook: dict
     telegram: dict
+    slack: dict
     script: dict
     location: dict
 
@@ -383,6 +389,12 @@ class Config():
             self._ini_get_cron(config, "TELEGRAM", "cron", "telegram.cron")
             self._ini_get(config, "TELEGRAM", "body", "telegram.body")
             self._ini_get(config, "TELEGRAM", "image", "telegram.image")
+            
+            self._ini_get_boolean(config, "SLACK",
+                                  "enabled", "slack.enabled")
+            self._ini_get(config, "SLACK", "app_token", "slack.app_token")
+            self._ini_get(config, "SLACK", "bot_token", "slack.bot_token")
+
 
             self._ini_get_boolean(config, "SCRIPT",
                                   "enabled", "script.enabled")
@@ -529,7 +541,11 @@ class Config():
             self._env_get_cron("TELEGRAM_CRON", "telegram.cron")
             self._env_get("TELEGRAM_BODY", "telegram.body")
             self._env_get("TELEGRAM_IMAGE", "telegram.image")
-
+            
+            self._env_get_boolean("SLACK", "slack.enabled")
+            self._env_get("SLACK_APP_TOKEN", "slack.app_token")
+            self._env_get("SLACK_BOT_TOKEN", "slack.bot_token")
+         
             self._env_get_boolean("SCRIPT", "script.enabled")
             self._env_get("SCRIPT_COMMAND", "script.command")
             self._env_get_cron("SCRIPT_CRON", "script.cron")
