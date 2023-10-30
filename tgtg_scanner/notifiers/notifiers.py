@@ -10,6 +10,7 @@ from tgtg_scanner.notifiers.ifttt import IFTTT
 from tgtg_scanner.notifiers.ntfy import Ntfy
 from tgtg_scanner.notifiers.push_safer import PushSafer
 from tgtg_scanner.notifiers.script import Script
+from tgtg_scanner.notifiers.slack import Slack
 from tgtg_scanner.notifiers.smtp import SMTP
 from tgtg_scanner.notifiers.telegram import Telegram
 from tgtg_scanner.notifiers.webhook import WebHook
@@ -29,6 +30,7 @@ class Notifiers:
             Ntfy(config),
             WebHook(config),
             Telegram(config, reservations, favorites),
+            Slack(config, reservations, favorites),
             Script(config),
         ]
         log.info("Activated notifiers:")

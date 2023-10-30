@@ -198,9 +198,10 @@ class Scanner:
         # start scanner
         log.info("Scanner started ...")
 
-        # TEMP
-        self.reservations.temp_test()
-        return
+        # # TEMP
+        # self.reservations.temp_test()
+        # return
+        
         running = True
         if self.cron != Cron("* * * * *"):
             log.info("Active on schedule: %s",
