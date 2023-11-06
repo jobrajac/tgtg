@@ -172,23 +172,23 @@ class Scanner:
         """
         Main Loop of the Scanner
         """
-        # test tgtg API
-        self.tgtg_client.login()
-        self.config.save_tokens(
-            self.tgtg_client.access_token,
-            self.tgtg_client.refresh_token,
-            self.tgtg_client.user_id,
-            self.tgtg_client.datadome_cookie
-        )
-        # activate location service
-        self.location = Location(
-            self.config.location.get("enabled"),
-            self.config.location.get("gmaps_api_key"),
-            self.config.location.get("origin_address"),
-        )
-        # activate and test notifiers
-        if self.config.metrics:
-            self.metrics.enable_metrics()
+        # # test tgtg API
+        # self.tgtg_client.login()
+        # self.config.save_tokens(
+        #     self.tgtg_client.access_token,
+        #     self.tgtg_client.refresh_token,
+        #     self.tgtg_client.user_id,
+        #     self.tgtg_client.datadome_cookie
+        # )
+        # # activate location service
+        # self.location = Location(
+        #     self.config.location.get("enabled"),
+        #     self.config.location.get("gmaps_api_key"),
+        #     self.config.location.get("origin_address"),
+        # )
+        # # activate and test notifiers
+        # if self.config.metrics:
+        #     self.metrics.enable_metrics()
         self.notifiers = Notifiers(
             self.config, self.reservations, self.favorites)
         if not self.config.disable_tests and \
@@ -198,9 +198,7 @@ class Scanner:
         # start scanner
         log.info("Scanner started ...")
 
-        # # TEMP
-        # self.reservations.temp_test()
-        # return
+
         
         running = True
         if self.cron != Cron("* * * * *"):
@@ -209,25 +207,26 @@ class Scanner:
         activity = Activity(self.config.activity and not
                             (self.config.docker or self.config.quiet))
         while True:
-            if self.cron.is_now:
-                if not running:
-                    log.info("Scanner reenabled by cron schedule.")
-                    running = True
-                try:
-                    self._job()
-                except Exception:
-                    log.error("Job Error! - %s", sys.exc_info())
-                finally:
-                    sleep_time = self.config.sleep_time * (.9 + .2 * random())
-                    for _ in range(int(sleep_time)):
-                        activity.next()
-                        sleep(sleep_time / int(sleep_time))
-                        activity.flush()
-            elif running:
-                log.info("Scanner disabled by cron schedule.")
-                running = False
-            else:
-                sleep(60)
+            sleep(60)
+            # if self.cron.is_now:
+            #     if not running:
+            #         log.info("Scanner reenabled by cron schedule.")
+            #         running = True
+            #     try:
+            #         self._job()
+            #     except Exception:
+            #         log.error("Job Error! - %s", sys.exc_info())
+            #     finally:
+            #         sleep_time = self.config.sleep_time * (.9 + .2 * random())
+            #         for _ in range(int(sleep_time)):
+            #             activity.next()
+            #             sleep(sleep_time / int(sleep_time))
+            #             activity.flush()
+            # elif running:
+            #     log.info("Scanner disabled by cron schedule.")
+            #     running = False
+            # else:
+            #     sleep(60)
 
     def __del__(self) -> None:
         """
